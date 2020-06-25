@@ -10,6 +10,8 @@ sns.set(style="white", color_codes=True)
 
 data = pd.read_csv('CC.csv')
 
+#QUESTION 1
+
 # finding  Null values in the dataset
 nulls = pd.DataFrame(data.isnull().sum().sort_values(ascending=False)[:25])
 nulls.columns = ['Null Count']
@@ -37,34 +39,62 @@ plt.xlabel('Number of Clusters')
 plt.ylabel('Wcss')
 plt.show()
 
-#Calculate the silhoutte score #n_clusters = 3
+#QUESTION 2:
+
+#Calculate the silhoutte score
 km = KMeans(n_clusters=3)
 km.fit(x)
 Y_cluster_kmeans= km.predict(x)
 from sklearn import metrics
 score = metrics.silhouette_score(x, Y_cluster_kmeans)
-print(score)
+print('normal score:', score)
 
-# feature scaling
+#QUESTION 3:
+
+#  Trying feature scaling
 scaler = StandardScaler()
-# Fit on training set only.
 scaler.fit(x)
-
-# Apply PCA.
 x_scaler = scaler.transform(x)
-pca = PCA(3)
-x_pca = pca.fit_transform(x_scaler)
-df2 = pd.DataFrame(data=x_pca)
-finaldf = pd.concat([df2,data[['TENURE']]],axis=1)
-# print(finaldf)
+km = KMeans(n_clusters=3)
+km.fit(x_scaler)
+Y_cluster_kmeans= km.predict(x_scaler)
+from sklearn import metrics
+scaledscore = metrics.silhouette_score(x_scaler, Y_cluster_kmeans)
+print('score after scaling:', scaledscore)
 
-# KMeans after standarization
+#QUESTION 4
+
+# Apply PCA on normal x.
+pca = PCA(3)
+x_pca = pca.fit_transform(x)
+
+
+
+#BONUS QUESTION 1:
+
+  # PCA + Kmeans
 
 km = KMeans(n_clusters=3)
 km.fit(x_pca)
 Y_cluster_kmeans= km.predict(x_pca)
 from sklearn import metrics
-score = metrics.silhouette_score(x_pca, Y_cluster_kmeans)
-print(score)
+pca_means_score = metrics.silhouette_score(x_pca, Y_cluster_kmeans)
+print('PCA+ Kmeans score is:', pca_means_score)
+
+
+ # KMeans +PCA + scaling
+
+pca = PCA(3)
+x_pcascale = pca.fit_transform(x_scaler)
+
+km = KMeans(n_clusters=3)
+km.fit(x_pcascale)
+Y_cluster_kmeans= km.predict(x_pcascale)
+from sklearn import metrics
+pca_means_scale_score = metrics.silhouette_score(x_pcascale, Y_cluster_kmeans)
+print('PCA+KMEANS+ Scale score is:', pca_means_scale_score)
+
+#BONUS QUESTION 2:
+
 plt.scatter(x_pca[:, 0], x_pca[:, 1], c = Y_cluster_kmeans)
 plt.show()
